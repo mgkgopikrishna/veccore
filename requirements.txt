@@ -1,2 +1,2 @@
-# Hugging Face Spaces reads this file.
-gradio>=4.44
+# Gradio comes from `sdk_version` in README-HF.md -- do not pin it here, or pip will
+# fight the Space runtime. VecCore's own core package has zero dependencies.
