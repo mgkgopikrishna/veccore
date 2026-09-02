@@ -3,6 +3,10 @@
 A RAG server where **embedding spaces are versioned** and changing the embedding model
 is a migration you can measure, gate, and roll back — instead of a reindex outage.
 
+**[Try the interactive demo →](https://huggingface.co/spaces/GopiKrishna88/veccore)** —
+drive a migration yourself: backfill, watch the incomplete space refuse to serve, measure
+the drift, then cut over or watch a strict gate refuse. No API key, no install.
+
 ```
 cosine( modelA("container killed for exceeding its memory limit"),
         modelB("container killed for exceeding its memory limit") ) = +0.748

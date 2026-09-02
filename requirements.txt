@@ -1,0 +1,2 @@
+# Hugging Face Spaces reads this file.
+gradio>=4.44
