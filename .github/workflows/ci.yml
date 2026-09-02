@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e ".[dev,server]"
+      - run: ruff check veccore tests examples
+      - run: pytest -q
+
+  core-has-no-dependencies:
+    # The core package must stay importable and fully testable with nothing installed
+    # but pytest. If a stray import creeps in, this job is what catches it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pytest
+      - run: python -c "import veccore, veccore.engine, veccore.migration; print('core imports clean')"
+      - run: python examples/migration_demo.py
+      - run: pytest -q --ignore=tests/test_api.py
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t veccore:ci .
+      - name: Smoke test the migration demo inside the image
+        run: docker run --rm veccore:ci python examples/migration_demo.py | grep -q "Total downtime: none"
