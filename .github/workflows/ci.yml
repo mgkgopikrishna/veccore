@@ -39,4 +39,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: docker build -t veccore:ci .
       - name: Smoke test the migration demo inside the image
-        run: docker run --rm veccore:ci python examples/migration_demo.py | grep -q "Total downtime: none"
+        # Block scalar, not a plain one: the grep pattern contains ": ", which would
+        # otherwise terminate the scalar and turn the rest into a YAML mapping.
+        run: |
+          docker run --rm veccore:ci python examples/migration_demo.py \
+            | grep -q "Total downtime: none"

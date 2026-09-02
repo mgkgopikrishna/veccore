@@ -3,6 +3,8 @@
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
+$Remote = "https://mgkgopikrishna@github.com/mgkgopikrishna/veccore.git"
+
 Write-Host "`n[1/4] Clearing sandbox leftovers..." -ForegroundColor Cyan
 Get-ChildItem .git -Recurse -Filter *.lock -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
 Get-ChildItem .git\objects -Recurse -Filter "tmp_obj_*" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
@@ -22,8 +24,11 @@ git commit -m "Add push helper" 2>$null
 if ($LASTEXITCODE -ne 0) { Write-Host "      (nothing new to commit - fine)" -ForegroundColor DarkGray }
 
 Write-Host "[4/4] Pushing..." -ForegroundColor Cyan
-git remote remove origin 2>$null
-git remote add origin https://mgkgopikrishna@github.com/mgkgopikrishna/veccore.git
+# git writes to stderr when the remote is absent, which strict mode treats as fatal.
+# Check first instead of relying on the removal succeeding.
+$remotes = git remote
+if ($remotes -contains "origin") { git remote set-url origin $Remote }
+else { git remote add origin $Remote }
 git push -u origin main
 
 Write-Host "`nDone. -> https://github.com/mgkgopikrishna/veccore" -ForegroundColor Green
